@@ -13,3 +13,9 @@ MonoBehaviour:
   m_Name: New Question 3
   m_EditorClassIdentifier: 
   question: "\u4E1C\u6C49\u672B\u5E74\u6C49\u732E\u5E1D\u540D\u4E3A?"
+  answers:
+  - "\u5218\u90A6"
+  - "\u5218\u534F"
+  - "\u5218\u8868"
+  - "\u5218\u5B8F"
+  correctAnswerIndex: 1
