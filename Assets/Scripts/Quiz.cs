@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine.UI;
 
 
@@ -30,12 +31,18 @@ public class Quiz : MonoBehaviour
 
     ScoreKeeper scoreKeeper;
 
+    [Header("ProgressBar")] [SerializeField]
+    Slider progressBar;
+
+    public bool isComplete;
+
     // Start is called before the first frame update
     void Start()
     {
         timer = FindObjectOfType<Timer>();
         scoreKeeper = FindObjectOfType<ScoreKeeper>();
-        // GetNextQuestion();
+        progressBar.maxValue = questions.Count;
+        progressBar.value = 0;
     }
 
     void Update()
@@ -62,6 +69,11 @@ public class Quiz : MonoBehaviour
         SetButtonState(false);
         timer.CancelTimer();
         scoreText.text = $"Score: {scoreKeeper.CalculateScore()}%";
+
+        if (progressBar.value == progressBar.maxValue)
+        {
+            isComplete = true;
+        }
     }
 
     private void DisplayAnswer(int index)
@@ -90,6 +102,7 @@ public class Quiz : MonoBehaviour
             SetDefaultButtonSprites();
             GetRandomQuestion();
             DisplayQuestion();
+            progressBar.value++;
             scoreKeeper.IncrementQuestionSeen();
         }
     }
@@ -122,7 +135,7 @@ public class Quiz : MonoBehaviour
             button.interactable = state;
         }
     }
-    
+
     void SetDefaultButtonSprites()
     {
         foreach (var t in answerButtons)
