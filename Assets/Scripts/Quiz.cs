@@ -1,9 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+
 
 public class Quiz : MonoBehaviour
 {
@@ -25,11 +25,17 @@ public class Quiz : MonoBehaviour
     [Header("Timer")] [SerializeField] Image timerImage;
     Timer timer;
 
+
+    [Header("Scoring")] [SerializeField] TextMeshProUGUI scoreText;
+
+    ScoreKeeper scoreKeeper;
+
     // Start is called before the first frame update
     void Start()
     {
         timer = FindObjectOfType<Timer>();
-        GetNextQuestion();
+        scoreKeeper = FindObjectOfType<ScoreKeeper>();
+        // GetNextQuestion();
     }
 
     void Update()
@@ -48,16 +54,6 @@ public class Quiz : MonoBehaviour
         }
     }
 
-    private void DisplayQuestion()
-    {
-        _questionText.text = currentQuestion.GetQuestion();
-        correctAnswerIndex = currentQuestion.GetCorrectAnswerIndex();
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = currentQuestion.GetAnswer(i);
-        }
-    }
-
     public void OnAnswerSelected(int index)
     {
         hasAnsweredEarly = true;
@@ -65,15 +61,18 @@ public class Quiz : MonoBehaviour
 
         SetButtonState(false);
         timer.CancelTimer();
+        scoreText.text = $"Score: {scoreKeeper.CalculateScore()}%";
     }
 
     private void DisplayAnswer(int index)
     {
-        var buttonImage = answerButtons[index].GetComponent<Image>();
+        Image buttonImage;
         if (index == currentQuestion.GetCorrectAnswerIndex())
         {
             _questionText.text = "Correct!";
+            buttonImage = answerButtons[index].GetComponent<Image>();
             buttonImage.sprite = correctAnswerSprite;
+            scoreKeeper.IncrementCorrectAnswers();
         }
         else
         {
@@ -91,12 +90,13 @@ public class Quiz : MonoBehaviour
             SetDefaultButtonSprites();
             GetRandomQuestion();
             DisplayQuestion();
+            scoreKeeper.IncrementQuestionSeen();
         }
     }
 
     void GetRandomQuestion()
     {
-        int randomIndex = UnityEngine.Random.Range(0, questions.Count);
+        int randomIndex = Random.Range(0, questions.Count);
         currentQuestion = questions[randomIndex];
         if (questions.Contains(currentQuestion))
         {
@@ -104,11 +104,13 @@ public class Quiz : MonoBehaviour
         }
     }
 
-    void SetDefaultButtonSprites()
+    private void DisplayQuestion()
     {
-        foreach (var t in answerButtons)
+        _questionText.text = currentQuestion.GetQuestion();
+        for (int i = 0; i < answerButtons.Length; i++)
         {
-            t.GetComponent<Image>().sprite = defaultAnswerSprite;
+            var buttonText = answerButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+            buttonText.text = currentQuestion.GetAnswer(i);
         }
     }
 
@@ -118,6 +120,14 @@ public class Quiz : MonoBehaviour
         {
             var button = t.GetComponent<Button>();
             button.interactable = state;
+        }
+    }
+    
+    void SetDefaultButtonSprites()
+    {
+        foreach (var t in answerButtons)
+        {
+            t.GetComponent<Image>().sprite = defaultAnswerSprite;
         }
     }
 }
